@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "356398444430",
+    "project_id": "meetm-3123c",
+    "storage_bucket": "meetm-3123c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356398444430:android:d3fe576077b40f79437edf",
+        "android_client_info": {
+          "package_name": "com.example.meet_mentor_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARv7M7F6FUTuQNS9U_Z_3KNjLHsQXqGS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
