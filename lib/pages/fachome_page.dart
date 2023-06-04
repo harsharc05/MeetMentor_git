@@ -1,4 +1,5 @@
  import 'package:flutter/material.dart';
+import 'package:meet_mentor_app/pages/stuprsnl_chat.dart';
 
 import 'facgroup_page.dart';
 import 'login_page.dart';
@@ -74,6 +75,11 @@ class FacultyHomePage extends StatelessWidget {
                   ),
                   title: Text('Chat Name'),
                   subtitle: Text('Last message'),
+                   onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => StudentChatScreen()),
+                      );}
                 );
               },
             ),

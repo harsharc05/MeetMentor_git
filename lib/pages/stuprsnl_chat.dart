@@ -1,7 +1,40 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
-class StudentChatScreen extends StatelessWidget {
-  const StudentChatScreen({Key? key});
+class StudentChatScreen extends StatefulWidget {
+  StudentChatScreen({Key? key});
+
+  @override
+  State<StudentChatScreen> createState() => _StudentChatScreenState();
+}
+
+class _StudentChatScreenState extends State<StudentChatScreen> {
+  late File? _image = null;
+  final TextEditingController _messageController = TextEditingController();
+  List<String> _messages = [];
+
+  Future<void> getImage(bool isCamera) async {
+    final imagePicker = ImagePicker();
+    final source = isCamera ? ImageSource.camera : ImageSource.gallery;
+
+    final pickedImage = await imagePicker.pickImage(source: source);
+    if (pickedImage != null) {
+      setState(() {
+        _image = File(pickedImage.path);
+      });
+    }
+  }
+
+  void _sendMessage() {
+    final message = _messageController.text.trim();
+    if (message.isNotEmpty) {
+      setState(() {
+        _messages.add(message);
+        _messageController.clear();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +77,31 @@ class StudentChatScreen extends StatelessWidget {
           Expanded(
             child: Container(
               color: Color(0xFFC9C0FF),
-              // Chat messages widget
+              child: ListView.builder(
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final message = _messages[index];
+                  return Align(
+                    alignment: Alignment.centerRight,
+                    child: Flexible(
+                      child: Container(
+                        margin: EdgeInsets.all(8),
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF150578),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Text(
+                          message,
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
           Container(
@@ -54,10 +111,12 @@ class StudentChatScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    style: TextStyle(color: Colors.white),
+                    controller: _messageController,
                     decoration: InputDecoration(
                       hintText: 'Type here',
-                      
                       border: InputBorder.none,
+                      hintStyle: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
@@ -65,16 +124,27 @@ class StudentChatScreen extends StatelessWidget {
                   icon: Icon(Icons.camera_alt),
                   color: Colors.white,
                   onPressed: () {
-                    // Perform action
+                    getImage(true);
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.insert_drive_file),
+                  color: Colors.white,
+                  onPressed: () {
+                    getImage(false);
                   },
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
                   color: Colors.white,
-                  onPressed: () {
-                    // Perform send action
-                  },
+                  onPressed: _sendMessage,
                 ),
+                if (_image != null)
+                  Image.file(
+                    _image!,
+                    height: 300.0,
+                    width: 300.0,
+                  ),
               ],
             ),
           ),

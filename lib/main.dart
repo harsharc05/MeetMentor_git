@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:meet_mentor_app/pages/camera.dart';
  
 import 'pages/home_page.dart';  
  
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(), // Set the home page as the HomePage widget
+      home:  HomePage(), // Set the home page as the HomePage widget
     );
   }
 }
