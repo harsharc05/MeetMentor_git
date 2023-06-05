@@ -1,14 +1,41 @@
+//import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:meet_mentor_app/pages/stuhome_page.dart';
 import 'login_page.dart';  
+ var i;
+ var name;
+class StudentProfilePage extends StatefulWidget {
+  @override
+  State<StudentProfilePage> createState() => _StudentProfilePageState();
+}
 
-class StudentProfilePage extends StatelessWidget {
-  final String studentName;
-
-  StudentProfilePage({required this.studentName});
+class _StudentProfilePageState extends State<StudentProfilePage> {
+   
 
   @override
   Widget build(BuildContext context) {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    if (user == null) {
+      print('User is currently signed out!');
+    } else {
+      print(user.uid);
+      i=user.uid;
+    }
+  });
+   
+   FirebaseFirestore.instance.collection('users').get().then((snapshot) => snapshot.docs
+   .forEach((element) { 
+    print(element.data()['uid']);
+    if(element.data()['uid']==i){
+      print(element.data()['firstName']);
+      name=element.data()['firstName'];
+       setState(() {
+        name = element.data()['firstName'];  
+      });
+    }
+   }));
     return Scaffold(
       backgroundColor: Color(0xFFC9C0FF),
       body: Padding(
@@ -45,7 +72,7 @@ class StudentProfilePage extends StatelessWidget {
             SizedBox(height: 16),
             Center(
               child: Text(
-                studentName,
+                name,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -60,7 +87,9 @@ class StudentProfilePage extends StatelessWidget {
                   height: 56,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Handle back button action
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => StudentHomePage()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF150578),

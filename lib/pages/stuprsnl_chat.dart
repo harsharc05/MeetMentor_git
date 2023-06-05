@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+//import 'package:audioplayers/audioplayers.dart';
+
 
 class StudentChatScreen extends StatefulWidget {
   StudentChatScreen({Key? key});
@@ -127,6 +130,14 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
                     getImage(true);
                   },
                 ),
+                IconButton(
+  icon: Icon(Icons.mic),
+  color: Colors.white,
+  onPressed: () {
+    // Implement audio recording functionality
+  },
+),
+
                 IconButton(
                   icon: Icon(Icons.insert_drive_file),
                   color: Colors.white,

@@ -1,6 +1,5 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:meet_mentor_app/pages/stuprsnl_chat.dart';
-import 'create_group_ChatFF.dart';
 import 'login_page.dart';
 import 'stuhome_page.dart';
  
@@ -90,14 +89,7 @@ class StudentGroupPage extends StatelessWidget {
             ),
           ),
 
-          Container(child: ElevatedButton(onPressed: () {
-
-            Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => GroupChatPage()),
-                    );
-            
-          }, child: Text("Create new Group"))),
+           
         ],
         
       ),

@@ -1,110 +1,132 @@
  import 'package:flutter/material.dart';
-import 'package:meet_mentor_app/pages/stuprsnl_chat.dart';
-
-import 'facgroup_page.dart';
+import 'package:meet_mentor_app/pages/cregroup_page.dart';
+import 'student_profile.dart';
+import 'stugroup_page.dart';
 import 'login_page.dart';
+import 'stuprsnl_chat.dart';
 
 class FacultyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFC9C0FF),
-      appBar: AppBar(
-        backgroundColor: Color(0xFFC9C0FF),
-        iconTheme: IconThemeData(color: Colors.black),
-        title: Row(
+      body: SafeArea(
+        child: Column(
+          
           children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Color(0xFF150578),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search Mentee',
-                    hintStyle: TextStyle(color: Colors.white),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    border: InputBorder.none,
+            SizedBox(height: 30),
+            Container(
+              
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Row(
+                children: [
+                  
+                  SizedBox(width: 15),
+                  Expanded(
+                    child: Container(
+                      height: 39,
+                      decoration: BoxDecoration(
+                        
+                        color: Color(0xFF150578),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Row(
+                        children: [
+                          SizedBox(width: 20 ),
+                          Icon(Icons.search, color: Colors.white),
+                          SizedBox(width: 15),
+                          Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: 'Search Mentee',
+                                hintStyle: TextStyle(color: Colors.white,fontFamily: 'Poppins',fontSize: 20),
+                                border: InputBorder.none,
+                                
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(width: 10),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CreateGroupScreen()),);
+                    },
+                    icon: Icon(Icons.group_add, color: Colors.black),
+                  ),
+                ],
               ),
             ),
-            SizedBox(width: 10),
-            IconButton(
-              onPressed: () {
-                // Add your onPressed logic here
-              },
-              icon: Icon(Icons.group_add, color: Colors.black),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF150578),
+                  ),
+                  child: Text('Chats'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => StudentGroupPage()));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF150578),
+                  ),
+                  child: Text('Groups'),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                itemCount: 5,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: AssetImage('assets/images/profile_pic.png'),
+                    ),
+                    title: Text('Chat Name'),
+                    subtitle: Text('Last message'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => StudentChatScreen()),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF150578),
-                ),
-                child: Text('Chats'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => FacultyGroupPage()));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF150578),
-                ),
-                child: Text('Groups'),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Expanded(
-            child: ListView.builder(
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/profile_pic.png'),
-                  ),
-                  title: Text('Chat Name'),
-                  subtitle: Text('Last message'),
-                   onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => StudentChatScreen()),
-                      );}
-                );
-              },
-            ),
-          ),
-        ],
-      ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFF150578), // Set the background color
+        backgroundColor: Color(0xFF150578),
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: Colors.white), // Set the color of the home icon
-            label: '', // Empty label
+            icon: Icon(Icons.home, color: Colors.white),
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: Colors.white), // Set the color of the profile icon
-            label: '', // Empty label
+            icon: Icon(Icons.person, color: Colors.white),
+            label: '',
           ),
         ],
-         onTap: (index) {
+        onTap: (index) {
           if (index == 0) {
             Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
           }
           if (index == 1) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-          }}
+            Navigator.push(context, MaterialPageRoute(builder: (context) => StudentProfilePage()));
+          }
+        },
       ),
     );
   }

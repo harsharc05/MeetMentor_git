@@ -33,6 +33,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   camera:
   image_picker:
+  audioplayers:
   firebase_auth: ^4.6.1
   firebase_core: ^2.13.0
   flutter:
