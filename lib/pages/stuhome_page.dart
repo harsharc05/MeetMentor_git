@@ -83,7 +83,7 @@ class StudentHomePage extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 25),
             Expanded(
               child: ListView.builder(
                 itemCount: 5,
@@ -92,8 +92,8 @@ class StudentHomePage extends StatelessWidget {
                     leading: CircleAvatar(
                       backgroundImage: AssetImage('assets/images/profile_pic.png'),
                     ),
-                    title: Text('Chat Name'),
-                    subtitle: Text('Last message'),
+                    title: Text('Chat Name'),titleTextStyle: TextStyle(fontSize: 20,color: Colors.black),
+                    subtitle: Text('Last message'),subtitleTextStyle: TextStyle(fontSize: 15,color: Colors.black),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -124,7 +124,7 @@ class StudentHomePage extends StatelessWidget {
             Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
           }
           if (index == 1) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => StudentProfilePage(studentName: 'Harsha',)));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => StudentProfilePage()));
           }
         },
       ),

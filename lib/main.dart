@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:meet_mentor_app/pages/camera.dart';
+ 
  
 import 'pages/home_page.dart';  
  
