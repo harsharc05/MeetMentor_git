@@ -34,8 +34,10 @@ dependencies:
   camera:
   image_picker:
   audioplayers:
+  uuid:
   firebase_auth: ^4.6.1
   firebase_core: ^2.13.0
+  firebase_storage:
   flutter:
     sdk: flutter
   fluttertoast: ^8.2.2
