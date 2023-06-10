@@ -2,8 +2,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:meet_mentor_app/pages/cregroup_page.dart';
+import 'package:meet_mentor_app/pages/new_addmembersingrp.dart';
 import 'package:meet_mentor_app/pages/newchatroom.dart';
 import 'package:meet_mentor_app/pages/newgroupchat.dart';
+import 'package:meet_mentor_app/pages/newgroupchatroom.dart';
 import 'student_profile.dart';
 import 'stugroup_page.dart';
 import 'login_page.dart';
@@ -17,16 +19,13 @@ class StudentHomePage extends StatefulWidget {
 class _StudentHomePageState extends State<StudentHomePage>
     with WidgetsBindingObserver {
   Map<String, dynamic>? userMap;
-  
-      
+  List groupList = [];
 
   bool isLoading = false;
   final TextEditingController _search = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-
-  
   void onSearch() async {
     setState(() {
       isLoading = true;
@@ -38,7 +37,6 @@ class _StudentHomePageState extends State<StudentHomePage>
         .get()
         .then((value) {
       setState(() {
-        
         userMap = value.docs.isNotEmpty ? value.docs[0].data() : null;
         isLoading = false;
       });
@@ -51,6 +49,7 @@ class _StudentHomePageState extends State<StudentHomePage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     setStatus("Online");
+    getAvailableGroups();
   }
 
   void setStatus(String status) async {
@@ -77,6 +76,22 @@ class _StudentHomePageState extends State<StudentHomePage>
     } else {
       return "$user2$user1";
     }
+  }
+
+  void getAvailableGroups() async {
+    String uid = _auth.currentUser!.uid;
+
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('groups')
+        .get()
+        .then((value) {
+      setState(() {
+        groupList = value.docs;
+        isLoading = false;
+      });
+    });
   }
 
   @override
@@ -140,77 +155,84 @@ class _StudentHomePageState extends State<StudentHomePage>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => CreateGroupScreen(),
+                                builder: (context) => StudentProfilePage(),
                               ),
                             );
                           },
-                          icon: Icon(Icons.group_add, color: Colors.black),
+                          icon: Icon(Icons.person, color: Colors.black),
                         ),
                       ],
                     ),
                   ),
                   SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF150578),
-                        ),
-                        child: Text('Chats'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => GroupChatHomeScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF150578),
-                        ),
-                        child: Text('Groups'),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 25),
-             
-                  userMap!=null?
-                    ListTile(
-                      onTap: () {
-                        
-                        if (_auth.currentUser != null && _auth.currentUser!.displayName != null && userMap!['firstName'] != null) {
-                        String roomId = chatRoomId(
-                            _auth.currentUser!.displayName!,userMap!['firstName']);
-                        
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => ChatRoom(
-                              chatRoomId: roomId,
-                              userMap: userMap!,
+                  userMap != null
+                      ? ListTile(
+                          onTap: () {
+                            if (_auth.currentUser != null &&
+                                _auth.currentUser!.displayName != null &&
+                                userMap!['firstName'] != null) {
+                              String roomId = chatRoomId(
+                                  _auth.currentUser!.displayName!,
+                                  userMap!['firstName']);
+
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ChatRoom(
+                                    chatRoomId: roomId,
+                                    userMap: userMap!,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              print(userMap);
+                            }
+                          },
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(userMap!['image']),
+                          ),
+                          title: Text(
+                            userMap!['firstName'],
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
+                          subtitle: Text(userMap!['email']),
+                          trailing: Icon(Icons.chat, color: Colors.black),
+                        )
+                      : Container(),
+                  SizedBox(height: 20),
+                  Text(
+                    "Groups",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: groupList.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => GroupChatRoom(
+                                  groupName: groupList[index]['name'],
+                                  groupChatId: groupList[index]['id'],
+                                ),
+                              ),
+                            );
+                          },
+                          leading: Icon(Icons.groups_rounded, color: Colors.black),
+                          title: Text(groupList[index]['name']),
                         );
-                        }
-                        else{print(userMap);}
                       },
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(userMap!['image']),
-                      ),
-                      title: Text(
-                        userMap!['firstName'],
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      subtitle: Text(userMap!['email']),
-                      trailing: Icon(Icons.chat, color: Colors.black),
-                    ):Container()
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -222,11 +244,7 @@ class _StudentHomePageState extends State<StudentHomePage>
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: Colors.white),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.group, color: Colors.white),
+            icon: Icon(Icons.group_add_sharp, color: Colors.white),
             label: '',
           ),
         ],
@@ -237,16 +255,11 @@ class _StudentHomePageState extends State<StudentHomePage>
               MaterialPageRoute(builder: (context) => LoginPage()),
             );
           }
+
           if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => StudentProfilePage()),
-            );
-          }
-          if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => GroupChatHomeScreen()),
+              MaterialPageRoute(builder: (_) => AddMembersInGroup()),
             );
           }
         },

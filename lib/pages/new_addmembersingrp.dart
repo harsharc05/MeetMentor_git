@@ -177,6 +177,7 @@ void onResultTap() {
       ),
       floatingActionButton: membersList.length >= 2
           ? FloatingActionButton(
+            backgroundColor: Color(0xFF150578) ,
               child: Icon(Icons.forward),
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(

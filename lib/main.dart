@@ -21,7 +21,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home:  HomePage(), // Set the home page as the HomePage widget
+      home:  HomePage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

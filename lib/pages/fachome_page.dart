@@ -1,112 +1,241 @@
- import 'package:flutter/material.dart';
+  import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:meet_mentor_app/pages/cregroup_page.dart';
+import 'package:meet_mentor_app/pages/new_addmembersingrp.dart';
+import 'package:meet_mentor_app/pages/newchatroom.dart';
+import 'package:meet_mentor_app/pages/newgroupchat.dart';
+import 'package:meet_mentor_app/pages/newgroupchatroom.dart';
 import 'student_profile.dart';
 import 'stugroup_page.dart';
 import 'login_page.dart';
 import 'stuprsnl_chat.dart';
 
-class FacultyHomePage extends StatelessWidget {
+class FacultyHomePage extends StatefulWidget {
+  @override
+  State<FacultyHomePage> createState() => _FacultyHomePageState();
+}
+
+class _FacultyHomePageState extends State<FacultyHomePage>
+    with WidgetsBindingObserver {
+  Map<String, dynamic>? userMap;
+  List groupList = [];
+
+  bool isLoading = false;
+  final TextEditingController _search = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  void onSearch() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await _firestore
+        .collection('users')
+        .where('email', isEqualTo: _search.text)
+        .get()
+        .then((value) {
+      setState(() {
+        userMap = value.docs.isNotEmpty ? value.docs[0].data() : null;
+        isLoading = false;
+      });
+      print(userMap);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    setStatus("Online");
+    getAvailableGroups();
+  }
+
+  void setStatus(String status) async {
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).update({
+      "status": status,
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // online
+      setStatus("Online");
+    } else {
+      // offline
+      setStatus("Offline");
+    }
+  }
+
+  String chatRoomId(String user1, String user2) {
+    if (user1[0].toLowerCase().codeUnits[0] >
+        user2.toLowerCase().codeUnits[0]) {
+      return "$user1$user2";
+    } else {
+      return "$user2$user1";
+    }
+  }
+
+  void getAvailableGroups() async {
+    String uid = _auth.currentUser!.uid;
+
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('groups')
+        .get()
+        .then((value) {
+      setState(() {
+        groupList = value.docs;
+        isLoading = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Color(0xFFC9C0FF),
-      body: SafeArea(
-        child: Column(
-          
-          children: [
-            SizedBox(height: 30),
-            Container(
-              
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: Row(
+      body: isLoading
+          ? Center(
+              child: Container(
+                height: size.height / 20,
+                width: size.height / 20,
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : SafeArea(
+              child: Column(
                 children: [
-                  
-                  SizedBox(width: 15),
-                  Expanded(
-                    child: Container(
-                      height: 39,
-                      decoration: BoxDecoration(
-                        
-                        color: Color(0xFF150578),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Row(
-                        children: [
-                          SizedBox(width: 20 ),
-                          Icon(Icons.search, color: Colors.white),
-                          SizedBox(width: 15),
-                          Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: 'Search Mentee',
-                                hintStyle: TextStyle(color: Colors.white,fontFamily: 'Poppins',fontSize: 20),
-                                border: InputBorder.none,
-                                
-                              ),
+                  SizedBox(height: 30),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 15),
+                    child: Row(
+                      children: [
+                        SizedBox(width: 15),
+                        Expanded(
+                          child: Container(
+                            height: 39,
+                            decoration: BoxDecoration(
+                              color: Color(0xFF150578),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Row(
+                              children: [
+                                SizedBox(width: 20),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _search,
+                                    style: TextStyle(color: Colors.white),
+                                    decoration: InputDecoration(
+                                      hintText: 'Search Mentee',
+                                      hintStyle: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Poppins',
+                                          fontSize: 20),
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(width: 5),
+                        IconButton(
+                          onPressed: onSearch,
+                          icon: Icon(Icons.search_rounded, color: Colors.black),
+                        ),
+                        SizedBox(width: 5),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => StudentProfilePage(),
+                              ),
+                            );
+                          },
+                          icon: Icon(Icons.person, color: Colors.black),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(width: 10),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => CreateGroupScreen()),);
-                    },
-                    icon: Icon(Icons.group_add, color: Colors.black),
+                  SizedBox(height: 20),
+                  userMap != null
+                      ? ListTile(
+                          onTap: () {
+                            if (_auth.currentUser != null &&
+                                _auth.currentUser!.displayName != null &&
+                                userMap!['firstName'] != null) {
+                              String roomId = chatRoomId(
+                                  _auth.currentUser!.displayName!,
+                                  userMap!['firstName']);
+
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ChatRoom(
+                                    chatRoomId: roomId,
+                                    userMap: userMap!,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              print(userMap);
+                            }
+                          },
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(userMap!['image']),
+                          ),
+                          title: Text(
+                            userMap!['firstName'],
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          subtitle: Text(userMap!['email']),
+                          trailing: Icon(Icons.chat, color: Colors.black),
+                        )
+                      : Container(),
+                  SizedBox(height: 20),
+                  Text(
+                    "Groups",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: groupList.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => GroupChatRoom(
+                                  groupName: groupList[index]['name'],
+                                  groupChatId: groupList[index]['id'],
+                                ),
+                              ),
+                            );
+                          },
+                          leading: Icon(Icons.groups_rounded, color: Colors.black),
+                          title: Text(groupList[index]['name']),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF150578),
-                  ),
-                  child: Text('Chats'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => StudentGroupPage()));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF150578),
-                  ),
-                  child: Text('Groups'),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: AssetImage('assets/images/profile_pic.png'),
-                    ),
-                    title: Text('Chat Name'),
-                    subtitle: Text('Last message'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => StudentChatScreen()),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Color(0xFF150578),
         items: [
@@ -115,16 +244,23 @@ class FacultyHomePage extends StatelessWidget {
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: Colors.white),
+            icon: Icon(Icons.group_add_sharp, color: Colors.white),
             label: '',
           ),
         ],
         onTap: (index) {
           if (index == 0) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LoginPage()),
+            );
           }
+
           if (index == 1) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => StudentProfilePage()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => AddMembersInGroup()),
+            );
           }
         },
       ),

@@ -3,8 +3,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:meet_mentor_app/pages/home_page.dart';
 import 'package:meet_mentor_app/pages/newaddmembers.dart';
 import 'package:meet_mentor_app/pages/shomepage.dart';
+import 'package:meet_mentor_app/pages/stuhome_page.dart';
 
 class GroupInfo extends StatefulWidget {
   final String groupId, groupName;
@@ -29,32 +31,36 @@ class _GroupInfoState extends State<GroupInfo> {
     getGroupDetails();
   }
 
-  Future getGroupDetails() async {
-    await _firestore
-        .collection('groups')
-        .doc(widget.groupId)
-        .get()
-        .then((chatMap) {
-      membersList = chatMap['members'];
-      print(membersList);
-      isLoading = false;
-      setState(() {});
-    });
-  }
+Future getGroupDetails() async {
+  DocumentSnapshot chatMap = await _firestore
+      .collection('groups')
+      .doc(widget.groupId)
+      .get();
 
-  bool checkAdmin() {
-    bool isAdmin = false;
-
-    membersList.forEach((element) {
-      if (element['uid'] == _auth.currentUser!.uid) {
-        isAdmin = element['isAdmin'];
-      }
-    });
-    return isAdmin;
+  if (chatMap.exists) {
+    membersList = chatMap['members'] ?? [];
+    print(membersList);
+    isLoading = false;
+    setState(() {});
   }
+}
+
+
+bool checkAdmin() {
+  bool isAdmin = false;
+
+  membersList.forEach((element) {
+    if (element['uid']  == _auth.currentUser!.uid) {
+      isAdmin = element['isAdmin'] ?? false;
+    }
+  });
+
+  return isAdmin ?? false ;
+}
+
 
   Future removeMembers(int index) async {
-    String uid = membersList[index]['uid'];
+    String uid = membersList[index]['uid'] ?? '';
 
     setState(() {
       isLoading = true;
@@ -101,7 +107,7 @@ class _GroupInfoState extends State<GroupInfo> {
       });
 
       for (int i = 0; i < membersList.length; i++) {
-        if (membersList[i]['uid'] == _auth.currentUser!.uid) {
+        if (membersList[i]['uid']  == _auth.currentUser!.uid) {
           membersList.removeAt(i);
         }
       }
@@ -118,8 +124,7 @@ class _GroupInfoState extends State<GroupInfo> {
           .delete();
 
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => HomeScreen()),
-        (route) => false,
+        MaterialPageRoute(builder: (_) => StudentHomePage()),(route) => false,
       );
     }
   }
@@ -173,6 +178,7 @@ class _GroupInfoState extends State<GroupInfo> {
                                 widget.groupName,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
+                                  fontFamily: 'Poppins',
                                   fontSize: size.width / 16,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -240,15 +246,14 @@ class _GroupInfoState extends State<GroupInfo> {
                             onTap: () => showDialogBox(index),
                             leading: Icon(Icons.account_circle),
                             title: Text(
-                              membersList[index]['name'],
+                              membersList[index]['name'] ?? '',
                               style: TextStyle(
                                 fontSize: size.width / 22,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            subtitle: Text(membersList[index]['email']),
-                            trailing: Text(
-                                membersList[index]['isAdmin'] ? "Admin" : ""),
+                            subtitle: Text(membersList[index]['email']?? ''),
+                            trailing: Text(membersList[index]['isAdmin'] == true ? "Admin" : ""),
                           );
                         },
                       ),
@@ -258,14 +263,14 @@ class _GroupInfoState extends State<GroupInfo> {
                       onTap: onLeaveGroup,
                       leading: Icon(
                         Icons.logout,
-                        color: Colors.redAccent,
+                        color: Colors.red,
                       ),
                       title: Text(
                         "Leave Group",
                         style: TextStyle(
                           fontSize: size.width / 22,
                           fontWeight: FontWeight.w500,
-                          color: Colors.redAccent,
+                          color: Colors.red,
                         ),
                       ),
                     ),

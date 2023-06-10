@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:meet_mentor_app/pages/shomepage.dart';
+import 'package:meet_mentor_app/pages/stuhome_page.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateGroup extends StatefulWidget {
@@ -52,7 +53,7 @@ class _CreateGroupState extends State<CreateGroup> {
     });
 
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => HomeScreen()), (route) => false);
+        MaterialPageRoute(builder: (_) => StudentHomePage()), (route) => false);
   }
 
   @override
